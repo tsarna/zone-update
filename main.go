@@ -1,7 +1,8 @@
 package main
 
 import (
-	"context"
+	"crypto/sha1"
+	"encoding/base32"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -28,7 +29,6 @@ type UpdateRequest struct {
 }
 
 var zoneFileName string
-var lockTimeout int
 
 func main() {
 	var port int
@@ -36,7 +36,6 @@ func main() {
 
 	flag.IntVar(&port, "port", 8080, "HTTP port to listen on")
 	flag.IntVar(&httpTimeout, "http-timeout", 60, "HTTP Request timeout")
-	flag.IntVar(&lockTimeout, "lock-timeout", 30, "Seconds to wait to obtain a lock")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -86,15 +85,18 @@ func updateEntry(w http.ResponseWriter, r *http.Request, enabled bool) {
 	}
 
 	fileLock := flock.New(fmt.Sprintf("%s.lock", zoneFileName))
-  err := lockWithTimeout(fileLock, lockTimeout, r.Context())
-  if (err != nil) {
-		http.Error(w, fmt.Sprintf("Failed to lock zone file after %d seconds: %s", lockTimeout, err),
-			http.StatusConflict)
+  success, err := fileLock.TryLockContext(r.Context(), time.Second)
+  if success {
+		updateZoneFile(w, zoneFileName, update, enabled);
+
+		fileLock.Unlock()
+	} else {
+		if (err == nil) {
+			err = fmt.Errorf("unknown error")
+		}
+
+		http.Error(w, fmt.Sprintf("Failed to lock zone file: ", err), http.StatusConflict)
 	}
-
-  updateZoneFile(w, zoneFileName, update, enabled);
-
-	fileLock.Unlock()
 }
 
 func updateZoneFile(w http.ResponseWriter, zoneFileName string, request UpdateRequest, enabled bool) {
@@ -119,29 +121,14 @@ func updateZoneFile(w http.ResponseWriter, zoneFileName string, request UpdateRe
 func copyAndUpdate(w http.ResponseWriter, currentFile io.Reader, newFile *atomicfile.AtomicFile,
 	request UpdateRequest, enabled bool) {
 
+
 	newFile.Abort()
 	w.Write([]byte("OK"))
 }
 
-func lockWithTimeout(lock *flock.Flock, wait int, ctx context.Context) error {
-	var err error
-
-	for tries := wait; tries > 0; tries-- {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			err = lock.Lock();
-		}
-
-		if err == nil {
-			return nil
-		} else {
-			time.Sleep(time.Second)
-		}
-	}
-
-	return err
+func cNameHash(fqdn string) string {
+	sum := sha1.Sum([]byte(fqdn))
+	return base32.StdEncoding.EncodeToString(sum[:])
 }
 
 func usage() {
