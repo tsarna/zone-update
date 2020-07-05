@@ -1,22 +1,7 @@
 #!/bin/bash
 
-env
-echo @@@
-
-export DOCKER_CLI_EXPERIMENTAL=enabled
-
-pwd
-echo @@@
-ls
-echo @@@
-ls ..
-echo @@@
+cd .. # Not sure why PWD is the docker dir and not the specified build context?
 
 for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
   echo docker build --platform=$ARCH --build-arg goarch=${ARCH} -f $DOCKERFILE_PATH -t $IMAGE_NAME-$ARCH .
 done
-
-for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
-  echo docker build --platform=$ARCH --build-arg goarch=${ARCH} -f $DOCKERFILE_PATH -t $IMAGE_NAME-$ARCH .
-done
-
