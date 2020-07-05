@@ -43,7 +43,8 @@ func ServeHttp(conf config.Config, updater updater.Updater) error {
   r.Use(middleware.Logger)
   r.Use(middleware.Recoverer)
 
-  if len(api.creds) > 0 {
+  // Second test ensures auth is enabled even if auth file is empty, to fail secure
+  if len(api.creds) > 0 || conf.HttpAuthFile != "" {
     r.Use(middleware.BasicAuth(conf.HttpAuthRealm, api.creds))
   }
 
