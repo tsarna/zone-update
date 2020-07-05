@@ -16,10 +16,15 @@ import (
 type RestApi struct {
   conf    config.Config
   updater updater.Updater
+  creds    map[string]string
 }
 
 func ServeHttp(conf config.Config, updater updater.Updater) {
-  api := RestApi{ conf: conf, updater: updater }
+  api := RestApi{ conf: conf, updater: updater, creds: make(map[string]string) }
+
+  if conf.User != "" && conf.Password != "" {
+     api.creds[conf.User] = conf.Password
+  }
 
   r := chi.NewRouter()
 
@@ -27,6 +32,10 @@ func ServeHttp(conf config.Config, updater updater.Updater) {
   r.Use(middleware.RealIP)
   r.Use(middleware.Logger)
   r.Use(middleware.Recoverer)
+
+  if len(api.creds) > 0 {
+    r.Use(middleware.BasicAuth(conf.HttpAuthRealm, api.creds))
+  }
 
   // Set a timeout value on the request context (ctx), that will signal
   // through ctx.Done() that the request has timed out and further
