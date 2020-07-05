@@ -7,7 +7,7 @@ COPY . .
 
 RUN go get -d -v
 
-RUN go build -o /zoneupdated
+RUN go build -ldflags="-w -s" -o /zoneupdated
 
 FROM scratch
 
