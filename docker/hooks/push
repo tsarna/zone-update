@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export DOCKER_CLI_EXPERIMENTAL=enabled   
+
 referenced=""
 
 for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
