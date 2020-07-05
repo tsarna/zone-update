@@ -1,12 +1,15 @@
 package restapi
 
 import (
+  "bufio"
   "encoding/json"
   "fmt"
   "github.com/go-chi/chi"
   "github.com/go-chi/chi/middleware"
   "log"
   "net/http"
+  "os"
+  "strings"
   "time"
   "zoneupdated/config"
   "zoneupdated/httperror"
@@ -19,8 +22,15 @@ type RestApi struct {
   creds    map[string]string
 }
 
-func ServeHttp(conf config.Config, updater updater.Updater) {
+func ServeHttp(conf config.Config, updater updater.Updater) error {
   api := RestApi{ conf: conf, updater: updater, creds: make(map[string]string) }
+
+  if conf.HttpAuthFile != "" {
+      err := api.parseAuthUsers(conf.HttpAuthFile)
+      if err != nil {
+        return fmt.Errorf("while parsing auth file: %s", err)
+      }
+  }
 
   if conf.User != "" && conf.Password != "" {
      api.creds[conf.User] = conf.Password
@@ -48,6 +58,8 @@ func ServeHttp(conf config.Config, updater updater.Updater) {
   })
 
   log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.HttpAddr, conf.HttpPort), r))
+
+  return nil;
 }
 
 func (api *RestApi) presentEntry(w http.ResponseWriter, r *http.Request) {
@@ -90,4 +102,33 @@ func (api *RestApi) updateEntry(w http.ResponseWriter, r *http.Request, disable 
   } else {
     _, _ = w.Write([]byte("OK"))
   }
+}
+
+func (api *RestApi) parseAuthUsers(httpAuthFile string) error {
+  file, err := os.Open(httpAuthFile)
+  if err != nil {
+    return err
+  }
+  defer file.Close()
+
+  scanner := bufio.NewScanner(file)
+  scanner.Split(bufio.ScanLines)
+  linenumber := 1
+
+  for scanner.Scan() {
+    line := scanner.Text()
+    fields := strings.Fields(line)
+
+    if len(fields) == 0 {
+      continue
+    } else if len(fields) == 2 {
+      api.creds[fields[0]] = fields[1]
+    } else {
+      return fmt.Errorf("Line needs two fields at line %d: '%s'", linenumber, line)
+    }
+
+    linenumber++
+  }
+
+  return nil
 }
