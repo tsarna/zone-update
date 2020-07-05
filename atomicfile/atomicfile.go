@@ -34,16 +34,18 @@ func (a *AtomicFile) Write(p []byte) (n int, err error) {
 }
 
 func (a *AtomicFile) Abort() error {
-  a.close()
+  a.Close()
   return os.Remove(a.tempFileName)
 }
 
 func (a *AtomicFile) Commit() error {
-  a.close()
+  a.Close()
   return os.Rename(a.tempFileName, a.fileName)
 }
 
-func (a *AtomicFile) close() {
+// Generally you should call Commit or Abort, but Close
+// can be used to leave the temp file in place for debugging.
+func (a *AtomicFile) Close() {
   a.tempFile.Close()
   a.tempFile = nil
 }

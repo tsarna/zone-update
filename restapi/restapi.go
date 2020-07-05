@@ -14,11 +14,12 @@ import (
 )
 
 type RestApi struct {
-  conf config.Config
+  conf    config.Config
+  updater updater.Updater
 }
 
-func ServeHttp(conf config.Config) {
-  api := RestApi{ conf: conf }
+func ServeHttp(conf config.Config, updater updater.Updater) {
+  api := RestApi{ conf: conf, updater: updater }
 
   r := chi.NewRouter()
 
@@ -69,11 +70,11 @@ func (api *RestApi) updateEntry(w http.ResponseWriter, r *http.Request, disable 
     return
   }
 
-  err := updater.Update(r.Context(), api.conf, updateRequest)
+  err := api.updater.Update(r.Context(), updateRequest)
   if err != nil {
     switch s := err.(type) {
     case httperror.HttpError:
-      http.Error(w, fmt.Sprintf("Failed waiting for lock: ", s), s.HttpStatus())
+      http.Error(w, s.Error(), s.HttpStatus())
     default:
       http.Error(w, err.Error(), http.StatusInternalServerError)
     }
