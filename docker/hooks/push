@@ -6,12 +6,14 @@ referenced=""
 
 for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
   referenced="$referenced $IMAGE_NAME-$ARCH"
-  docker push $IMAGE_NAME
+  echo docker push $IMAGE_NAME-$ARCH
+  docker push $IMAGE_NAME-$ARCH
 done
 
 docker manifest create $IMAGE_NAME $referenced
 
 for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
+  echo docker manifest annotate $IMAGE_NAME $IMAGE_NAME-$ARCH --arch $ARCH
   docker manifest annotate $IMAGE_NAME $IMAGE_NAME-$ARCH --arch $ARCH
 done
 
