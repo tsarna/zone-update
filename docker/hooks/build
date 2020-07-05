@@ -1,4 +1,4 @@
 #!/bin/bash
 for ARCH in ${BUILD_ARCHES:=amd64 arm64}; do
-  docker build --platform=$ARCH --build-arg goarch=${ARCH} -f $DOCKERFILE_PATH -t $IMAGE_NAME-$ARCH .
+  echo docker build --platform=$ARCH --build-arg goarch=${ARCH} -f $DOCKERFILE_PATH -t $IMAGE_NAME-$ARCH .
 done
