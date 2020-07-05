@@ -10,3 +10,4 @@ $TTL 1M
 			IN NS		ns02.example.com.
 
 test			IN A		192.0.2.1
+;VFFI7ZOMWGN2MHCMBBZ5HEPJQ6MC7O6T	IN TXT foo

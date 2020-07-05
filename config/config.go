@@ -12,6 +12,7 @@ type Config struct {
   HttpPort        int
   HttpTimeoutSecs int
   ZoneFileName    string
+  TestMode        bool
 }
 
 func Init() (Config, error) {
@@ -20,6 +21,7 @@ func Init() (Config, error) {
   flag.StringVar(&config.HttpAddr, "http-addr", "", "HTTP listen address")
   flag.IntVar(&config.HttpPort, "http-port", 8080, "HTTP listen port")
   flag.IntVar(&config.HttpTimeoutSecs, "http-timeout", 60, "HTTP Request timeout")
+  flag.BoolVar(&config.TestMode, "test", false, "Testing Mode")
 
   envy.Parse("ZUPD") // Expose environment variables.
 
