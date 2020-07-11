@@ -10,7 +10,7 @@ COPY . .
 
 RUN go get -d -v
 
-RUN GOOS=${goos} GOARCH=${goarch} go build -ldflags="-w -s" -o /zoneupdated     
+RUN CGO_ENABLED=0 GOOS=${goos} GOARCH=${goarch} go build -ldflags="-w -s" -o /zoneupdated     
 
 FROM scratch
 
