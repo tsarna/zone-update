@@ -5,9 +5,11 @@ import (
   "context"
   "crypto/sha1"
   "encoding/base32"
+  "errors"
   "fmt"
   "github.com/gofrs/flock"
   "io"
+  "log"
   "net/http"
   "os"
   "regexp"
@@ -150,9 +152,11 @@ func (updater *Updater) copyAndUpdate(currentFile io.Reader, newFile *atomicfile
   }
 
   if !found {
+    msg := fmt.Sprintf("Did not find record for %s or %s with RRTYPE %s",
+      updateRequest.FQDN, hash, updateRequest.RRType)
+    log.Print(msg)
     return false, httperror.Error(http.StatusBadRequest,
-      fmt.Errorf("Did not find record for %s or %s with RRTYPE %s",
-      updateRequest.FQDN, hash, updateRequest.RRType))
+      errors.New(msg))
   }
 
   return changed, nil

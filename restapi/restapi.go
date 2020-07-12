@@ -53,17 +53,17 @@ func (api *RestApi) ServeHttp() error {
   r.Use(middleware.Logger)
   r.Use(middleware.Recoverer)
 
-  // Second test ensures auth is enabled even if auth file is empty, to fail secure
-  if len(api.creds) > 0 || api.conf.HttpAuthFile != "" {
-    r.Use(middleware.BasicAuth(api.conf.HttpAuthRealm, api.creds))
-  }
-
   // Set a timeout value on the request context (ctx), that will signal
   // through ctx.Done() that the request has timed out and further
   // processing should be stopped.
   r.Use(middleware.Timeout(time.Second * time.Duration(api.conf.HttpTimeoutSecs)))
 
   r.Route(api.conf.UrlPrefix, func(r chi.Router) {
+    // Second test ensures auth is enabled even if auth file is empty, to fail secure
+    if len(api.creds) > 0 || api.conf.HttpAuthFile != "" {
+      r.Use(middleware.BasicAuth(api.conf.HttpAuthRealm, api.creds))
+    }
+
     r.Post("/present", api.presentEntry)
     r.Post("/cleanup", api.disableEntry)
   })
@@ -200,5 +200,5 @@ func (api *RestApi) Reload() error {
 
 func robotsTxt(w http.ResponseWriter, _ *http.Request) {
   _, _ = io.WriteString(w, "User-agent: *\n")
-  _, _ = io.WriteString(w, "Disallow: /")
+  _, _ = io.WriteString(w, "Disallow: /\n")
 }
