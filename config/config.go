@@ -5,6 +5,7 @@ import (
   "fmt"
   "github.com/jamiealquiza/envy"
   "os"
+  "strings"
 )
 
 type Config struct {
@@ -18,6 +19,8 @@ type Config struct {
   TrustProxy      bool
   TlsCertFilename string
   TlsKeyFilename  string
+  UrlPrefix       string
+  RobotsTxt       bool
   TestMode        bool
 }
 
@@ -33,6 +36,8 @@ func Init() (Config, error) {
   flag.BoolVar(&config.TrustProxy, "trust-proxy", false, "Trust X-Real-IP/X-Forwarded-For")
   flag.StringVar(&config.TlsCertFilename, "tls-cert", "", "TLS certificate chain file")
   flag.StringVar(&config.TlsKeyFilename, "tls-key", "", "TLS certificate key file")
+  flag.StringVar(&config.UrlPrefix, "url-prefix", "/zone-update", "URL prefix to serve")
+  flag.BoolVar(&config.RobotsTxt, "robots-txt", false, "Serve /robots.txt to block indexing")
   flag.BoolVar(&config.TestMode, "test", false, "Testing Mode - Only update temp file")
 
   envy.Parse("ZUPD") // Expose environment variables.
@@ -47,6 +52,10 @@ func Init() (Config, error) {
 
   if (config.TlsCertFilename == "") != (config.TlsKeyFilename == "") {
     return Config{}, fmt.Errorf("Must supply both TLS cert AND key files or neither.")
+  }
+
+  if !strings.HasPrefix(config.UrlPrefix, "/") {
+    config.UrlPrefix = "/" + config.UrlPrefix
   }
 
   config.ZoneFileName = flag.Arg(0)

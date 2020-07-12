@@ -61,12 +61,14 @@ func ServeHttp(conf config.Config, updater updater.Updater) error {
   // processing should be stopped.
   r.Use(middleware.Timeout(time.Second * time.Duration(conf.HttpTimeoutSecs)))
 
-  r.Route("/zone-update", func(r chi.Router) {
+  r.Route(conf.UrlPrefix, func(r chi.Router) {
     r.Post("/present", api.presentEntry)
     r.Post("/cleanup", api.disableEntry)
   })
 
-  r.Get("/robots.txt", robotsTxt)
+  if conf.RobotsTxt {
+    r.Get("/robots.txt", robotsTxt)
+  }
 
   if conf.TlsCertFilename != "" && conf.TlsKeyFilename != "" {
     err := api.loadCert()
@@ -182,7 +184,7 @@ func (api *RestApi) getCertificate(*tls.ClientHelloInfo) (*tls.Certificate, erro
   return cert, nil
 }
 
-func robotsTxt(w http.ResponseWriter, r *http.Request) {
+func robotsTxt(w http.ResponseWriter, _ *http.Request) {
   _, _ = io.WriteString(w, "User-agent: *\n")
   _, _ = io.WriteString(w, "Disallow: /")
 }

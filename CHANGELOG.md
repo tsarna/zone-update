@@ -2,10 +2,11 @@
 
 FEATURES:
 
- * Serve a /robots.txt that blocks robots.
+ * Make the URL prefix for the API configurable
+ * Optionally serve a /robots.txt that blocks robots.
  * Now supports HTTPS
  * Don't trust proxy headers (X-Real-IP/X-Forwarded-For) unless --trust-proxy is given
- * Replace separate --http-addr and -http-port wth --listen-addr
+ * Replace separate --http-addr and -http-port wth --listen
  * Add a changelog.
 
 ## 0.1.1 (July 11, 2020)
