@@ -9,19 +9,20 @@ import (
 )
 
 type Config struct {
-  ZoneFileName    string
-  ListenAddr      string
-  HttpTimeoutSecs int
-  HttpAuthRealm   string
-  HttpAuthFile    string
-  User            string
-  Password        string
-  TrustProxy      bool
-  TlsCertFilename string
-  TlsKeyFilename  string
-  UrlPrefix       string
-  RobotsTxt       bool
-  TestMode        bool
+  ZoneFileName     string
+  ListenAddr       string
+  HttpTimeoutSecs  int
+  HttpAuthRealm    string
+  HttpAuthFile     string
+  User             string
+  Password         string
+  TrustProxy       bool
+  TlsCertFilename  string
+  TlsKeyFilename   string
+  UrlPrefix        string
+  RobotsTxt        bool
+  TestMode         bool
+  SequentialSerial bool
 }
 
 func Init() (Config, error) {
@@ -38,6 +39,7 @@ func Init() (Config, error) {
   flag.StringVar(&config.TlsKeyFilename, "tls-key", "", "TLS certificate key file")
   flag.StringVar(&config.UrlPrefix, "url-prefix", "/zone-update", "URL prefix to serve")
   flag.BoolVar(&config.RobotsTxt, "robots-txt", false, "Serve /robots.txt to block indexing")
+  flag.BoolVar(&config.SequentialSerial, "sequential-serial", false, "Use a simple incrementing serial number (not date based)")
   flag.BoolVar(&config.TestMode, "test", false, "Testing Mode - Only update temp file")
 
   envy.Parse("ZUPD") // Expose environment variables.

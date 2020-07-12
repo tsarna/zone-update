@@ -71,7 +71,7 @@ func (updater *Updater) Update(ctx context.Context, updateRequest UpdateRequest)
   } else if changed {
     return newZoneFile.Commit()
   } else {
-    newZoneFile.Abort()
+    _ = newZoneFile.Abort()
   }
   return err
 }
@@ -110,9 +110,11 @@ func (updater *Updater) copyAndUpdate(currentFile io.Reader, newFile *atomicfile
         return false, err
       }
 
-      timeSerial := timeBasedSerial()
-      if timeSerial > serial {
-        serial = timeSerial
+      if !updater.conf.SequentialSerial {
+        timeSerial := timeBasedSerial()
+        if timeSerial > serial {
+          serial = timeSerial
+        }
       }
 
       _, err = fmt.Fprintf(newFile,"%s%d%s\n", groups[1], serial+1, groups[3])

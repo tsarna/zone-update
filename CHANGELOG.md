@@ -2,6 +2,7 @@
 
 FEATURES:
 
+ * With --sequential-serial use a simple incrementing zone serial, instead of a date-based one.
  * Make the URL prefix for the API configurable
  * Optionally serve a /robots.txt that blocks robots.
  * Now supports HTTPS
