@@ -2,6 +2,7 @@
 
 FEATURES:
 
+ * Don't trust proxy headers (X-Real-IP/X-Forwarded-For) unless --trust-proxy is given
  * Replace separate --http-addr and -http-port wth --listen-addr
  * Add a changelog.
 
