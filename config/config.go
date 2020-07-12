@@ -67,3 +67,7 @@ func usage() {
   _, _ = fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s zone-file-name\n\n", os.Args[0])
   flag.PrintDefaults()
 }
+
+func (conf Config) UseHttps() bool {
+  return conf.TlsCertFilename != "" && conf.TlsKeyFilename != ""
+}

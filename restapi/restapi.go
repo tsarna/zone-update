@@ -26,25 +26,27 @@ type RestApi struct {
   cert    atomic.Value
 }
 
-func ServeHttp(conf config.Config, updater updater.Updater) error {
-  api := RestApi{conf: conf, updater: updater, creds: make(map[string]string)}
+func New(conf config.Config, updater updater.Updater) RestApi {
+  return RestApi{conf: conf, updater: updater, creds: make(map[string]string)}
+}
 
-  if conf.HttpAuthFile != "" {
-    err := api.parseAuthUsers(conf.HttpAuthFile)
+func (api *RestApi) ServeHttp() error {
+  if api.conf.HttpAuthFile != "" {
+    err := api.parseAuthUsers(api.conf.HttpAuthFile)
     if err != nil {
       return fmt.Errorf("while parsing auth file: %s", err)
     }
   }
 
-  if conf.User != "" && conf.Password != "" {
-    api.creds[conf.User] = conf.Password
+  if api.conf.User != "" && api.conf.Password != "" {
+    api.creds[api.conf.User] = api.conf.Password
   }
 
   r := chi.NewRouter()
 
   r.Use(middleware.RequestID)
 
-  if conf.TrustProxy {
+  if api.conf.TrustProxy {
     r.Use(middleware.RealIP)
   }
 
@@ -52,41 +54,41 @@ func ServeHttp(conf config.Config, updater updater.Updater) error {
   r.Use(middleware.Recoverer)
 
   // Second test ensures auth is enabled even if auth file is empty, to fail secure
-  if len(api.creds) > 0 || conf.HttpAuthFile != "" {
-    r.Use(middleware.BasicAuth(conf.HttpAuthRealm, api.creds))
+  if len(api.creds) > 0 || api.conf.HttpAuthFile != "" {
+    r.Use(middleware.BasicAuth(api.conf.HttpAuthRealm, api.creds))
   }
 
   // Set a timeout value on the request context (ctx), that will signal
   // through ctx.Done() that the request has timed out and further
   // processing should be stopped.
-  r.Use(middleware.Timeout(time.Second * time.Duration(conf.HttpTimeoutSecs)))
+  r.Use(middleware.Timeout(time.Second * time.Duration(api.conf.HttpTimeoutSecs)))
 
-  r.Route(conf.UrlPrefix, func(r chi.Router) {
+  r.Route(api.conf.UrlPrefix, func(r chi.Router) {
     r.Post("/present", api.presentEntry)
     r.Post("/cleanup", api.disableEntry)
   })
 
-  if conf.RobotsTxt {
+  if api.conf.RobotsTxt {
     r.Get("/robots.txt", robotsTxt)
   }
 
-  if conf.TlsCertFilename != "" && conf.TlsKeyFilename != "" {
+  if api.conf.UseHttps() {
     err := api.loadCert()
     if err != nil {
-      return nil
+      return err
     }
 
     tlsConfig := &tls.Config{
       GetCertificate: api.getCertificate,
     }
     server := &http.Server{
-      Addr:      conf.ListenAddr,
+      Addr:      api.conf.ListenAddr,
       Handler:   r,
       TLSConfig: tlsConfig,
     }
     log.Fatal(server.ListenAndServeTLS("", ""))
   } else {
-    log.Fatal(http.ListenAndServe(conf.ListenAddr, r))
+    log.Fatal(http.ListenAndServe(api.conf.ListenAddr, r))
   }
 
   return nil
@@ -182,6 +184,18 @@ func (api *RestApi) getCertificate(*tls.ClientHelloInfo) (*tls.Certificate, erro
   }
 
   return cert, nil
+}
+
+func (api *RestApi) Reload() error {
+  if api.conf.UseHttps() {
+    err := api.loadCert()
+    if err != nil {
+      return err
+    }
+    log.Printf("Reloaded certificates")
+  }
+
+  return nil
 }
 
 func robotsTxt(w http.ResponseWriter, _ *http.Request) {
