@@ -8,14 +8,15 @@ import (
 )
 
 type Config struct {
+	ZoneFileName    string
 	ListenAddr      string
 	HttpTimeoutSecs int
-	ZoneFileName    string
-	TestMode        bool
 	HttpAuthRealm   string
 	HttpAuthFile    string
 	User            string
 	Password        string
+	TrustProxy      bool
+	TestMode        bool
 }
 
 func Init() (Config, error) {
@@ -27,7 +28,8 @@ func Init() (Config, error) {
 	flag.StringVar(&config.User, "http-user", "", "HTTP User to allow access")
 	flag.StringVar(&config.Password, "http-password", "", "HTTP Password to allow access")
 	flag.StringVar(&config.HttpAuthFile, "http-auth-file", "", "A file of users and passwords, plaintext, whitespace delimited")
-	flag.BoolVar(&config.TestMode, "test", false, "Testing Mode")
+	flag.BoolVar(&config.TrustProxy, "trust-proxy", false, "Trust X-Real-IP/X-Forwarded-For")
+	flag.BoolVar(&config.TestMode, "test", false, "Testing Mode - Only update temp file")
 
 	envy.Parse("ZUPD") // Expose environment variables.
 

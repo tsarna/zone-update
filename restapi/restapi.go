@@ -39,7 +39,11 @@ func ServeHttp(conf config.Config, updater updater.Updater) error {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
+
+	if conf.TrustProxy {
+		r.Use(middleware.RealIP)
+	}
+
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
