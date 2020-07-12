@@ -2,6 +2,7 @@
 
 FEATURES:
 
+ * Replace separate --http-addr and -http-port wth --listen-addr
  * Add a changelog.
 
 ## 0.1.1 (July 11, 2020)
