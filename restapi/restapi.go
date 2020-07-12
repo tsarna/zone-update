@@ -2,6 +2,7 @@ package restapi
 
 import (
 	"bufio"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 	"zoneupdated/config"
 	"zoneupdated/httperror"
@@ -20,6 +22,7 @@ type RestApi struct {
 	conf    config.Config
 	updater updater.Updater
 	creds   map[string]string
+	cert    atomic.Value
 }
 
 func ServeHttp(conf config.Config, updater updater.Updater) error {
@@ -62,7 +65,24 @@ func ServeHttp(conf config.Config, updater updater.Updater) error {
 		r.Post("/cleanup", api.disableEntry)
 	})
 
-	log.Fatal(http.ListenAndServe(conf.ListenAddr, r))
+	if conf.TlsCertFilename != "" && conf.TlsKeyFilename != "" {
+		err := api.loadCert()
+		if err != nil {
+			return nil
+		}
+
+		tlsConfig := &tls.Config{
+			GetCertificate: api.getCertificate,
+		}
+		server := &http.Server{
+			Addr:      conf.ListenAddr,
+			Handler:   r,
+			TLSConfig: tlsConfig,
+		}
+		log.Fatal(server.ListenAndServeTLS("", ""))
+	} else {
+		log.Fatal(http.ListenAndServe(conf.ListenAddr, r))
+	}
 
 	return nil
 }
@@ -136,4 +156,25 @@ func (api *RestApi) parseAuthUsers(httpAuthFile string) error {
 	}
 
 	return nil
+}
+
+func (api *RestApi) loadCert() error {
+	cert, err := tls.LoadX509KeyPair(api.conf.TlsCertFilename, api.conf.TlsKeyFilename)
+	if err != nil {
+		return err
+	}
+
+	api.cert.Store(&cert)
+
+	return nil
+}
+
+func (api *RestApi) getCertificate(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+	cert, ok := api.cert.Load().(*tls.Certificate)
+
+	if cert == nil || !ok {
+		return nil, fmt.Errorf("No valid certificate loaded")
+	}
+
+	return cert, nil
 }
