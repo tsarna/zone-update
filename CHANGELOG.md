@@ -2,6 +2,7 @@
 
 FEATURES:
 
+ * Serve a /robots.txt that blocks robots.
  * Now supports HTTPS
  * Don't trust proxy headers (X-Real-IP/X-Forwarded-For) unless --trust-proxy is given
  * Replace separate --http-addr and -http-port wth --listen-addr
