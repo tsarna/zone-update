@@ -240,6 +240,9 @@ Obviously attempting to use zoneupdated with a certificate obtained from an ACME
 
 [Docker images are provided on Docker Hub](https://hub.docker.com/repository/docker/tysarna/zoneupdated).
 
+The docker image is very compact and lightweight. It consists only of the statically linked binary,
+and is `FROM scratch` (meaning it has no base image).
+
 Docker images are currently built for amd64 and arm64.
 Use the generic tag name instead of the architecture-specific ones (eg `latest` instead of `latest-amd64`) and the correct version should be used automatically.
 Use the `latest` tag at your own risk as an update to a newer version with incomatible changes might break your setup.

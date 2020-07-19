@@ -132,7 +132,7 @@ func (api *RestApi) updateEntry(w http.ResponseWriter, r *http.Request, disable 
       http.Error(w, err.Error(), http.StatusInternalServerError)
     }
   } else {
-    _, _ = w.Write([]byte("OK"))
+    _, _ = w.Write([]byte("OK\n"))
   }
 }
 
