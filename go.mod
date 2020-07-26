@@ -8,4 +8,5 @@ require (
 	github.com/jamiealquiza/envy v1.1.0
 	github.com/spf13/cobra v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/tsarna/chi v4.1.3-0.20200726011848-01bc9d7863d0+incompatible
 )

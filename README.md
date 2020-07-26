@@ -208,19 +208,14 @@ Obviously attempting to use zoneupdated with a certificate obtained from an ACME
  The `--http-user` and `--http-password` options,
  or especially there encironment variable equivalents, may be more conventient in the case where zoneupdated has only a single client accessing it.
  
- The file-based option is useful if more than one client will access zoneupdated.
+ The file-based option is useful if more than one client will access zoneupdated and to update the password without restarting.
  The file consists of allowable logins, one per line, with the user name and then password delimited by whitespace.
  The passwords are in plaintext, so make sure the file is well secured.
  This option may be more convenient when using something like Vault Agent to render a template containing multiple users.
  
- In the event both styles are configured, both the file and the single user/password configured will be used,
- with the single user/password option overriding the file if they happen to reference the same username.
- However, to avoid consuion it is not recommended to use both together.
+ It is not possible to use both options for authentication.
  
  If configured, /robots.txt is **not** protected by basic auth.
- 
- NOTE: zoneupdate is currently **not** capable of reloading the auth file on SIGHUP, due to limitations of underlying libraries.
- This will be fixed in a future release.
  
  These options control authentication:
  
