@@ -50,19 +50,12 @@ func Init() (Config, error) {
 
 	if len(flag.Args()) != 1 {
 		flag.Usage()
-		return Config{}, errors.New("Incorrect arguments")
+		return Config{}, errors.New("incorrect arguments")
 	}
 
-	if (config.User == "") != (config.Password == "") {
-		return Config{}, errors.New("Must supply both user and password or neither")
-	}
-
-	if config.HttpAuthFile != "" && config.User != "" {
-		return Config{}, errors.New("Cannot specify both an auth file and a user")
-	}
-
-	if (config.TlsCertFilename == "") != (config.TlsKeyFilename == "") {
-		return Config{}, errors.New("Must supply both TLS cert AND key files or neither.")
+	err := ValidateConfig(config)
+	if err != nil {
+		return Config{}, err
 	}
 
 	if !strings.HasPrefix(config.UrlPrefix, "/") {
@@ -72,6 +65,22 @@ func Init() (Config, error) {
 	config.ZoneFileName = flag.Arg(0)
 
 	return config, nil
+}
+
+func ValidateConfig(config Config) error {
+	if (config.User == "") != (config.Password == "") {
+		return errors.New("must supply both user and password or neither")
+	}
+
+	if config.HttpAuthFile != "" && config.User != "" {
+		return errors.New("cannot specify both an auth file and a user")
+	}
+
+	if (config.TlsCertFilename == "") != (config.TlsKeyFilename == "") {
+		return errors.New("must supply both TLS cert AND key files or neither")
+	}
+
+	return nil
 }
 
 func usage() {
