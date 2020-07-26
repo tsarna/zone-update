@@ -18,15 +18,15 @@ import (
 )
 
 type RestApi struct {
-	conf      config.Config
-	updater   updater.Updater
-	creds     map[string]string
-	cert      atomic.Value
-	passwords *PasswordFile
+	conf        config.Config
+	updater     updater.Updater
+	credentials map[string]string
+	cert        atomic.Value
+	passwords   *PasswordFile
 }
 
 func New(conf config.Config, updater updater.Updater) RestApi {
-	return RestApi{conf: conf, updater: updater, creds: make(map[string]string)}
+	return RestApi{conf: conf, updater: updater, credentials: make(map[string]string)}
 }
 
 func (api *RestApi) ServeHttp() error {
@@ -40,7 +40,7 @@ func (api *RestApi) ServeHttp() error {
 	}
 
 	if api.conf.User != "" && api.conf.Password != "" {
-		api.creds[api.conf.User] = api.conf.Password
+		api.credentials[api.conf.User] = api.conf.Password
 	}
 
 	r := chi.NewRouter()
@@ -63,8 +63,8 @@ func (api *RestApi) ServeHttp() error {
 		// Second test ensures auth is enabled even if auth file is empty, to fail secure
 		if api.conf.HttpAuthFile != "" {
 			r.Use(mymiddleware.BasicAuthWithAuthenticator(api.conf.HttpAuthRealm, api.passwords))
-		} else if len(api.creds) > 0 {
-			r.Use(mymiddleware.BasicAuth(api.conf.HttpAuthRealm, api.creds))
+		} else if len(api.credentials) > 0 {
+			r.Use(mymiddleware.BasicAuth(api.conf.HttpAuthRealm, api.credentials))
 		}
 
 		r.Post("/present", api.presentEntry)
@@ -154,7 +154,7 @@ func (api *RestApi) getCertificate(*tls.ClientHelloInfo) (*tls.Certificate, erro
 	cert, ok := api.cert.Load().(*tls.Certificate)
 
 	if cert == nil || !ok {
-		return nil, fmt.Errorf("No valid certificate loaded")
+		return nil, fmt.Errorf("no valid certificate loaded")
 	}
 
 	return cert, nil

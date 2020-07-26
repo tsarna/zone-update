@@ -3,7 +3,8 @@
  * If one is configured, the password file is now reloaded on SIGHUP.
  * It is no longer possible to use the single user/password flags or
    environment variables together with a password file.
- * Add unit tests for AtomicFile, and some for Config. Coverage now at 9.8% (Statements) 
+ * Add unit tests for AtomicFile, the new PasswordFile class, and some for Config.
+   Coverage now at 21.6% (of statements) 
  
 ## 0.2.0 (July 18, 2020)
 
