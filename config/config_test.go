@@ -25,7 +25,7 @@ func TestValidateConfig_UserPass(t *testing.T) {
 }
 
 func TestValidateConfig_HttpAuthFile(t *testing.T) {
-	err := ValidateConfig(Config{User: "bob", HttpAuthFile: "passwd"})
+	err := ValidateConfig(Config{User: "bob", Password: "12345", HttpAuthFile: "passwd"})
 	if err == nil {
 		t.Error("User should not be allowed together with a password file")
 	}
