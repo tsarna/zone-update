@@ -1,4 +1,8 @@
 ## Next (Unreleased)
+
+ * TBD
+ 
+## 0.3.0 (July 28, 2020)
  
  * If one is configured, the password file is now reloaded on SIGHUP.
  * It is no longer possible to use the single user/password flags or
