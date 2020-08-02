@@ -3,57 +3,85 @@ package config
 import "testing"
 
 func TestValidateConfig_UserPass(t *testing.T) {
-	err := ValidateConfig(Config{User: "bob"})
+	conf := &Config{User: "bob"}
+	err := conf.ValidateConfig()
 	if err == nil {
 		t.Error("User without password should have thrown an error")
 	}
 
-	err = ValidateConfig(Config{Password: "12345"})
+	conf = &Config{Password: "12345"}
+	err = conf.ValidateConfig()
 	if err == nil {
 		t.Error("Password without username should have thrown an error")
 	}
 
-	err = ValidateConfig(Config{User: "bob", Password: "12345"})
+	conf = &Config{User: "bob", Password: "12345"}
+	err = conf.ValidateConfig()
 	if err != nil {
 		t.Errorf("User together plus password should be allowed, but got %s", err)
 	}
 
-	err = ValidateConfig(Config{})
+	conf = &Config{}
+	err = conf.ValidateConfig()
 	if err != nil {
 		t.Errorf("No User and no password should be allowed, but got %s", err)
 	}
 }
 
 func TestValidateConfig_HttpAuthFile(t *testing.T) {
-	err := ValidateConfig(Config{User: "bob", Password: "12345", HttpAuthFile: "passwd"})
+	conf := &Config{User: "bob", Password: "12345", HttpAuthFile: "passwd"}
+	err := conf.ValidateConfig()
 	if err == nil {
 		t.Error("User should not be allowed together with a password file")
 	}
 
-	err = ValidateConfig(Config{HttpAuthFile: "passwd"})
+	conf = &Config{HttpAuthFile: "passwd"}
+	err = conf.ValidateConfig()
 	if err != nil {
 		t.Errorf("Password file without user should be allowed, but got %s", err)
 	}
 }
 
 func TestValidateConfig_TLS(t *testing.T) {
-	err := ValidateConfig(Config{TlsCertFilename: "cert.pem"})
+	conf := &Config{TlsCertFilename: "cert.pem"}
+	err := conf.ValidateConfig()
 	if err == nil {
 		t.Error("TLS Cert without key should have thrown an error")
 	}
 
-	err = ValidateConfig(Config{TlsKeyFilename: "key.pem"})
+	conf = &Config{TlsKeyFilename: "key.pem"}
+	err = conf.ValidateConfig()
 	if err == nil {
 		t.Error("TLS Key without certificate should have thrown an error")
 	}
 
-	err = ValidateConfig(Config{TlsCertFilename: "cert.pem", TlsKeyFilename: "key.pem"})
+	conf = &Config{TlsCertFilename: "cert.pem", TlsKeyFilename: "key.pem"}
+	err = conf.ValidateConfig()
 	if err != nil {
 		t.Errorf("TLS cert and key together should be allowed, but got %s", err)
 	}
+	if conf.UseHttps() != true {
+		t.Error("Expected UseHttps true, got false")
+	}
 
-	err = ValidateConfig(Config{})
+	conf = &Config{}
+	err = conf.ValidateConfig()
 	if err != nil {
 		t.Errorf("No TLS cert and no TLS key should be allowed, but got %s", err)
+	}
+	if conf.UseHttps() != false {
+		t.Error("Expected UseHttps false, got true")
+	}
+}
+
+func TestValidateConfig_Prefix(t *testing.T) {
+	conf := &Config{UrlPrefix: "foo"}
+	err := conf.ValidateConfig()
+	if err != nil {
+		t.Errorf("URL prefix only should have been allowed, but got %s", err)
+	}
+
+	if conf.UrlPrefix != "/foo" {
+		t.Errorf("Expected URL Prefix '/foo' but got '%s'", conf.UrlPrefix)
 	}
 }
