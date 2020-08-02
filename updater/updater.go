@@ -8,6 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/flock"
+	"github.com/tsarna/zone-update/atomicfile"
+	"github.com/tsarna/zone-update/config"
+	"github.com/tsarna/zone-update/httperror"
 	"io"
 	"log"
 	"net/http"
@@ -16,9 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zone-update/atomicfile"
-	"zone-update/config"
-	"zone-update/httperror"
 )
 
 type UpdateRequest struct {

@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/mitchellh/cli"
+	"github.com/tsarna/zone-update/command"
+	"github.com/tsarna/zone-update/version"
 	"log"
 	"os"
-	"zone-update/command"
-	"zone-update/version"
 )
 
 func main() {

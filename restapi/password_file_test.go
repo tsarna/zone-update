@@ -3,10 +3,10 @@ package restapi_test
 import (
 	"context"
 	"fmt"
+	"github.com/tsarna/zone-update/restapi"
 	"io"
 	"os"
 	"testing"
-	"zone-update/restapi"
 )
 
 func TestPasswordFile_CheckPassword(t *testing.T) {
