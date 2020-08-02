@@ -18,14 +18,14 @@ import (
 )
 
 type RestApi struct {
-	conf        config.Config
+	conf        *config.Config
 	updater     updater.Updater
 	credentials map[string]string
 	cert        atomic.Value
 	passwords   *PasswordFile
 }
 
-func New(conf config.Config, updater updater.Updater) RestApi {
+func New(conf *config.Config, updater updater.Updater) RestApi {
 	return RestApi{conf: conf, updater: updater, credentials: make(map[string]string)}
 }
 

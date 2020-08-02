@@ -29,12 +29,12 @@ type UpdateRequest struct {
 }
 
 type Updater struct {
-	conf          config.Config
+	conf          *config.Config
 	lockfile      *flock.Flock
 	serialMatcher *regexp.Regexp
 }
 
-func New(conf config.Config) Updater {
+func New(conf *config.Config) Updater {
 	updater := Updater{
 		conf:          conf,
 		lockfile:      flock.New(fmt.Sprintf("%s.lock", conf.ZoneFileName)),
