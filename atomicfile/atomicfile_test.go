@@ -2,10 +2,10 @@ package atomicfile_test
 
 import (
 	"fmt"
+	"github.com/tsarna/zone-update/atomicfile"
 	"io/ioutil"
 	"os"
 	"testing"
-	"zone-update/atomicfile"
 )
 
 const (

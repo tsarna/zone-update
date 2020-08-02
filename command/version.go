@@ -2,8 +2,8 @@ package command
 
 import (
 	"github.com/mitchellh/cli"
+	"github.com/tsarna/zone-update/version"
 	"strings"
-	"zone-update/version"
 )
 
 type VersionCommand struct {

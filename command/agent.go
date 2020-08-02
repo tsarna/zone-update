@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"github.com/mitchellh/cli"
 	"github.com/tsarna/envy"
+	"github.com/tsarna/zone-update/config"
+	"github.com/tsarna/zone-update/restapi"
+	"github.com/tsarna/zone-update/updater"
 	"log"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
-	"zone-update/config"
-	"zone-update/restapi"
-	"zone-update/updater"
 )
 
 type AgentCommand struct {

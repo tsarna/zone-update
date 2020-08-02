@@ -7,14 +7,14 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	mymiddleware "github.com/tsarna/chi/middleware"
+	"github.com/tsarna/zone-update/config"
+	"github.com/tsarna/zone-update/httperror"
+	"github.com/tsarna/zone-update/updater"
 	"io"
 	"log"
 	"net/http"
 	"sync/atomic"
 	"time"
-	"zone-update/config"
-	"zone-update/httperror"
-	"zone-update/updater"
 )
 
 type RestApi struct {

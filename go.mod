@@ -1,4 +1,4 @@
-module zone-update
+module github.com/tsarna/zone-update
 
 go 1.14
 

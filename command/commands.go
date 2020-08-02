@@ -2,7 +2,7 @@ package command
 
 import (
 	"github.com/mitchellh/cli"
-	"zone-update/version"
+	"github.com/tsarna/zone-update/version"
 )
 
 func Commands(ui cli.Ui) map[string]cli.CommandFactory {
