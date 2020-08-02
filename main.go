@@ -1,36 +1,35 @@
 package main
 
 import (
+	"github.com/mitchellh/cli"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
-	"zoneupdated/config"
-	"zoneupdated/restapi"
-	"zoneupdated/updater"
+	"zoneupdated/command"
+	"zoneupdated/version"
 )
 
 func main() {
-	conf, err := config.Init()
+	os.Exit(Run(os.Args[1:]))
+}
 
-	api := restapi.New(conf, updater.New(conf))
-
-	// Listen for SIGHUP and reload
-	sigchan := make(chan os.Signal, 1)
-	signal.Notify(sigchan, syscall.SIGHUP)
-	go func() {
-		for range sigchan {
-			log.Printf("Received SIGHUP, Reloading")
-			api.Reload()
-		}
-	}()
-
-	if err == nil {
-		err = api.ServeHttp()
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		log.Fatal(err)
+func Run(args []string) int {
+	ui := &cli.BasicUi{
+		Reader:      os.Stdin,
+		Writer:      os.Stdout,
+		ErrorWriter: os.Stderr,
 	}
+
+	cli := &cli.CLI{
+		Name: "zone-update",
+		Version: version.GetVersion().FullVersionNumber(true),
+		Args: args,
+		Commands: command.Commands(ui),
+	}
+
+	exitStatus, err := cli.Run()
+	if err != nil {
+		log.Println(err)
+	}
+
+	return exitStatus
 }

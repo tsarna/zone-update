@@ -26,7 +26,7 @@ type Config struct {
 	SequentialSerial bool
 }
 
-func Init() (Config, error) {
+func Init(args []string) (Config, error) {
 	var config Config
 
 	flag.StringVar(&config.ListenAddr, "listen", ":8080", "Where to listen for HTTP(S) connections")
