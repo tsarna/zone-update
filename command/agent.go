@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"zoneupdated/config"
-	"zoneupdated/restapi"
-	"zoneupdated/updater"
+	"zone-update/config"
+	"zone-update/restapi"
+	"zone-update/updater"
 )
 
 type AgentCommand struct {
@@ -55,6 +55,3 @@ func (a AgentCommand) Synopsis() string {
 func (a AgentCommand) Help() string {
 	return "TODO -- help here"
 }
-
-
-

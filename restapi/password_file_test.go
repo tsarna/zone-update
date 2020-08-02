@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 	"testing"
-	"zoneupdated/restapi"
+	"zone-update/restapi"
 )
 
 func TestPasswordFile_CheckPassword(t *testing.T) {

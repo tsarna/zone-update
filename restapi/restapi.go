@@ -12,9 +12,9 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
-	"zoneupdated/config"
-	"zoneupdated/httperror"
-	"zoneupdated/updater"
+	"zone-update/config"
+	"zone-update/httperror"
+	"zone-update/updater"
 )
 
 type RestApi struct {

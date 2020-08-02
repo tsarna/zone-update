@@ -16,9 +16,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zoneupdated/atomicfile"
-	"zoneupdated/config"
-	"zoneupdated/httperror"
+	"zone-update/atomicfile"
+	"zone-update/config"
+	"zone-update/httperror"
 )
 
 type UpdateRequest struct {

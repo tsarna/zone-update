@@ -3,7 +3,7 @@ package command
 import (
 	"github.com/mitchellh/cli"
 	"strings"
-	"zoneupdated/version"
+	"zone-update/version"
 )
 
 type VersionCommand struct {
@@ -21,7 +21,7 @@ Usage: zone-update version
 	return strings.TrimSpace(help)
 }
 
-func (v VersionCommand) Run(args []string) int {
+func (v VersionCommand) Run(_ []string) int {
 	v.Ui.Output(v.Version.FullVersionNumber(true))
 	return 0
 }

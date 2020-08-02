@@ -26,12 +26,12 @@ type Config struct {
 	SequentialSerial bool
 }
 
-func Init(args []string) (Config, error) {
+func Init(_ []string) (Config, error) {
 	var config Config
 
 	flag.StringVar(&config.ListenAddr, "listen", ":8080", "Where to listen for HTTP(S) connections")
 	flag.IntVar(&config.HttpTimeoutSecs, "http-timeout", 60, "HTTP Request timeout")
-	flag.StringVar(&config.HttpAuthRealm, "http-auth-realm", "zoneupdated", "Realm for HTTP Basic Auth")
+	flag.StringVar(&config.HttpAuthRealm, "http-auth-realm", "zone-update", "Realm for HTTP Basic Auth")
 	flag.StringVar(&config.User, "http-user", "", "HTTP User to allow access")
 	flag.StringVar(&config.Password, "http-password", "", "HTTP Password to allow access")
 	flag.StringVar(&config.HttpAuthFile, "http-auth-file", "", "A file of users and passwords, plaintext, whitespace delimited")

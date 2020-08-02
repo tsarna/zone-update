@@ -1,6 +1,8 @@
 ## Next (Unreleased)
 
- * TBD
+ * **INCOMPATIBLE** - Changed to use a subcommand CLI design in order to support some future enhancements.
+   The "agent" subcommand runs the REST server agent.
+ * Renamed from zoneupdated to zone-update since not every invocation will now be running a daemon.
  
 ## 0.3.0 (July 28, 2020)
  

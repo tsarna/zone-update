@@ -10,10 +10,10 @@ COPY . .
 
 RUN go get -d -v
 
-RUN CGO_ENABLED=0 GOOS=${goos} GOARCH=${goarch} go build -ldflags="-w -s" -o /zoneupdated     
+RUN CGO_ENABLED=0 GOOS=${goos} GOARCH=${goarch} go build -ldflags="-w -s" -o /zone-update
 
 FROM scratch
 
-COPY --from=builder /zoneupdated /zoneupdated
+COPY --from=builder /zone-update /zone-update
 
-ENTRYPOINT ["/zoneupdated"]
+ENTRYPOINT ["/zone-update"]

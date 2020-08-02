@@ -4,8 +4,8 @@ import (
 	"github.com/mitchellh/cli"
 	"log"
 	"os"
-	"zoneupdated/command"
-	"zoneupdated/version"
+	"zone-update/command"
+	"zone-update/version"
 )
 
 func main() {
@@ -19,14 +19,14 @@ func Run(args []string) int {
 		ErrorWriter: os.Stderr,
 	}
 
-	cli := &cli.CLI{
-		Name: "zone-update",
-		Version: version.GetVersion().FullVersionNumber(true),
-		Args: args,
+	c := &cli.CLI{
+		Name:     "zone-update",
+		Version:  version.GetVersion().FullVersionNumber(true),
+		Args:     args,
 		Commands: command.Commands(ui),
 	}
 
-	exitStatus, err := cli.Run()
+	exitStatus, err := c.Run()
 	if err != nil {
 		log.Println(err)
 	}

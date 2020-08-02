@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-	"zoneupdated/atomicfile"
+	"zone-update/atomicfile"
 )
 
 const (

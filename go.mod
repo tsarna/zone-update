@@ -1,4 +1,4 @@
-module zoneupdated
+module zone-update
 
 go 1.14
 
