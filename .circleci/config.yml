@@ -6,31 +6,32 @@ jobs:
       - image: circleci/golang:1.14
 
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+
     steps:
       - checkout
 
       - run: 
-        name: "Setup custom environment variables"
-        command: |
-          echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$CIRCLE_SHA1"' >> $BASH_ENV
+          name: "Setup custom environment variables"
+          command: |
+            echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$CIRCLE_SHA1"' >> $BASH_ENV
 
       - run:
-        name: Build
-        command: |
-          go build -trimpath -ldflags $(GO_LDFLAGS) -o zone-update
+          name: Build
+          command: |
+            go build -trimpath -ldflags $(GO_LDFLAGS) -o zone-update
 
       - run:
-        name: "Create a temp directory for artifacts"
-        command: |
-          mkdir -p /tmp/artifacts
+          name: "Create a temp directory for artifacts"
+          command: |
+            mkdir -p /tmp/artifacts
 
       - run:
-        name: Run Tests
-        command: |
-          go test -coverprofile=cover.out -v ./...
-          go tool cover -func cover.out -o coverage.txt
-          go tool cover -html=cover.out -o coverage.html
-          mv coverage.txt coverage.html /tmp/artifacts
+          name: Run Tests
+          command: |
+            go test -coverprofile=cover.out -v ./...
+            go tool cover -func cover.out -o coverage.txt
+            go tool cover -html=cover.out -o coverage.html
+            mv coverage.txt coverage.html /tmp/artifacts
 
       - store_artifacts:
           path: /tmp/artifacts
