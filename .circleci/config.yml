@@ -13,12 +13,16 @@ jobs:
       - run: 
           name: "Setup custom environment variables"
           command: |
-            echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$CIRCLE_SHA1"' >> $BASH_ENV
+            GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
+            echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
+            echo @@@
+            cat $BASH_ENV
+            echo @@@
 
       - run:
           name: Build
           command: |
-            go build -trimpath -ldflags $(GO_LDFLAGS) -o zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o zone-update
 
       - run:
           name: "Create a temp directory for artifacts"
