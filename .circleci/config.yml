@@ -5,8 +5,6 @@ jobs:
       # specify the version
       - image: circleci/golang:1.14
 
-    environment:
-      - : "-X github.com/tsarna/zone-update/version.GitCommit=$(GIT_COMMIT)$(GIT_DIRTY)"
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
