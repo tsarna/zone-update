@@ -17,8 +17,8 @@ jobs:
           command: |
             cat >> $BASH_ENV \<<__EOF__
             export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
-            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=$GIT_COMMIT"
-            if [ ! -n "$CIRCLE_TAG" ]; then
+            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=\$GIT_COMMIT"
+            if [ -n "$CIRCLE_TAG" ]; then
               export VER=$CIRCLE_TAG
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
               export VER=latest
@@ -59,7 +59,7 @@ jobs:
           command: |
             env >artifacts/ENV.txt
             cat $BASH_ENV >artifacts/bashenv.txt
-            for arch in linux_amd64 lxinux_arm64; do
+            for arch in linux_amd64 linux_arm64; do
               zip -j workspace/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip bin/$arch/*
             done
             cd workspace; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
