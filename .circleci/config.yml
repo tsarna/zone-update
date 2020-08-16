@@ -45,5 +45,11 @@ jobs:
             go tool cover -html=cover.out -o artifacts/coverage.html
             ./pkg/linux_amd64/zone-update version >artifacts/version.txt
 
+      - run:
+          name: Package Binaries
+          command: |
+            for arch in linux_amd64 linux_arm64; do
+              zip -j pkg/$arch.zip pkg/$arch/*
+
       - store_artifacts:
           path: artifacts
