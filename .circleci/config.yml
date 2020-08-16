@@ -57,12 +57,12 @@ jobs:
       - run:
           name: Package Binaries
           command: |
-            for arch in linux_amd64 linux_arm64; do
+            env >artifacts/ENV.txt
+            cat $BASH_ENV >artifacts/bashenv.txt
+            for arch in linux_amd64 lxinux_arm64; do
               zip -j workspace/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip bin/$arch/*
             done
             cd workspace; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
-            env >ENV.txt
-            cat $BASH_ENV >bashenv.txt
 
       - store_artifacts:
           path: artifacts
