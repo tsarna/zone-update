@@ -17,7 +17,7 @@ jobs:
           command: |
             cat >> $BASH_ENV \<<__EOF__
             export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
-            export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"
+            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=$GIT_COMMIT"
             if [ ! -n "$CIRCLE_TAG"]; then
               export VER=$CIRCLE_TAG
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
@@ -26,7 +26,7 @@ jobs:
               export VER=$CIRCLE_BRANCH
             fi
             __EOF__
-            mkdir -p artifacts pkg bin/linux_amd64 bin/linux_arm64
+            mkdir -p artifacts workspace bin/linux_amd64 bin/linux_arm64
 
       - run:
           name: Build (AMD64)
@@ -35,7 +35,7 @@ jobs:
             GOOS: linux
             GOARCH: amd64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_amd64/zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_amd64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
           name: Build (ARM64)
@@ -44,7 +44,7 @@ jobs:
             GOOS: linux
             GOARCH: arm64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_arm64/zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_arm64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
           name: Run Tests
@@ -52,21 +52,48 @@ jobs:
             go test -coverprofile=cover.out -v ./...
             go tool cover -func cover.out -o artifacts/coverage.txt
             go tool cover -html=cover.out -o artifacts/coverage.html
-            ./bin/linux_amd64/zone-update version >artifacts/version.txt
+            ./bin/linux_amd64/${CIRCLE_PROJECT_REPONAME} version >artifacts/version.txt
 
       - run:
           name: Package Binaries
           command: |
             for arch in linux_amd64 linux_arm64; do
-              zip -j pkg/zone-update_${VER}_${arch}.zip bin/$arch/*
+              zip -j workspace/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip bin/$arch/*
             done
-            cd pkg; sha256sum *.zip >zone-update_${VER}_SHA256SUMS
+            cd workspace; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
             env >ENV.txt
             cat $BASH_ENV >bashenv.txt
 
       - store_artifacts:
           path: artifacts
 
-      - store_artifacts:
-          path: pkg
+      - persist_to_workspace:
+          root: workspace
+          paths: "*"
 
+  publish-github-release:
+    docker:
+      - image: circleci/golang:1.14
+    steps:
+      - attach_workspace:
+          at: ./workspace
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=$CIRCLE_TAG
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./workspace/
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build
+      - publish-github-release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
