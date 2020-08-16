@@ -50,6 +50,7 @@ jobs:
           command: |
             for arch in linux_amd64 linux_arm64; do
               zip -j pkg/$arch.zip pkg/$arch/*
+            done
 
       - store_artifacts:
           path: artifacts
