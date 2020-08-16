@@ -58,9 +58,9 @@ jobs:
           name: Package Binaries
           command: |
             for arch in linux_amd64 linux_arm64; do
-              zip -j pkg/zone-update_$VER_$arch.zip bin/$arch/*
+              zip -j pkg/zone-update_${VER}_${arch}.zip bin/$arch/*
             done
-            cd pkg; sha256sum *.zip >pkg/zone-update_$VER_SHA256SUMS
+            cd pkg; sha256sum *.zip >zone-update_${VER}_SHA256SUMS
             env >ENV.txt
             cat $BASH_ENV >bashenv.txt
 
