@@ -13,7 +13,7 @@ jobs:
       - run: 
           name: "Setup custom environment variables"
           command: |
-            GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
+            echo 'export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`' >> $BASH_ENV
             echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
             echo @@@
             cat $BASH_ENV
