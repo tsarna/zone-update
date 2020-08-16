@@ -5,26 +5,37 @@ jobs:
       # specify the version
       - image: circleci/golang:1.14
 
+    resource_class: small
+
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
 
     steps:
       - checkout
 
       - run: 
-          name: "Setup custom environment variables"
+          name: "Set up environment"
           command: |
             echo 'export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`' >> $BASH_ENV
             echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
+            mkdir -p artifacts pkg/linux_amd64 pkg/linux_arm64
 
       - run:
-          name: Build
+          name: Build (AMD64)
+          environment:
+            CGO_ENABLED: 0
+            GOOS: linux
+            GOARCH: amd64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o pkg/linux_amd64/zone-update
 
       - run:
-          name: "Create a temp directory for artifacts"
+          name: Build (ARM64)
+          environment:
+            CGO_ENABLED: 0
+            GOOS: linux
+            GOARCH: arm64
           command: |
-            mkdir -p artifacts
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o pkg/linux_arm64/zone-update
 
       - run:
           name: Run Tests
@@ -32,7 +43,7 @@ jobs:
             go test -coverprofile=cover.out -v ./...
             go tool cover -func cover.out -o artifacts/coverage.txt
             go tool cover -html=cover.out -o artifacts/coverage.html
-            ./zone-update version >artifacts/version.txt
+            ./pkg/linux_amd64/zone-update version >artifacts/version.txt
 
       - store_artifacts:
           path: artifacts
