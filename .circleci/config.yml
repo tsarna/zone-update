@@ -15,9 +15,6 @@ jobs:
           command: |
             echo 'export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`' >> $BASH_ENV
             echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
-            echo @@@
-            cat $BASH_ENV
-            echo @@@
 
       - run:
           name: Build
@@ -27,15 +24,15 @@ jobs:
       - run:
           name: "Create a temp directory for artifacts"
           command: |
-            mkdir -p /tmp/artifacts
+            mkdir -p artifacts
 
       - run:
           name: Run Tests
           command: |
             go test -coverprofile=cover.out -v ./...
-            go tool cover -func cover.out -o coverage.txt
-            go tool cover -html=cover.out -o coverage.html
-            mv coverage.txt coverage.html /tmp/artifacts
+            go tool cover -func cover.out -o artifacts/coverage.txt
+            go tool cover -html=cover.out -o artifacts/coverage.html
+            zone-update version >artifacts/version.txt
 
       - store_artifacts:
-          path: /tmp/artifacts
+          path: artifacts
