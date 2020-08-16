@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
@@ -17,13 +17,13 @@ jobs:
           command: |
             cat >> $BASH_ENV \<<__EOF__
             export GIT_COMMIT_SHORT=`echo $CIRCLE_SHA1 | cut -c 1-8`
-            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=\$GIT_COMMIT_SHORT"
+            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit="'$GIT_COMMIT_SHORT'
             if [ -n "$CIRCLE_TAG" ]; then
-              export VER=$CIRCLE_TAG
+              export VER="$CIRCLE_TAG"
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
-              export VER=latest
+              export VER="latest"
             else
-              export VER=$CIRCLE_BRANCH
+              export VER="$CIRCLE_BRANCH"
             fi
             __EOF__
             mkdir -p artifacts workspace bin/linux_amd64 bin/linux_arm64
