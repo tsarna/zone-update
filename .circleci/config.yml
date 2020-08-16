@@ -15,7 +15,7 @@ jobs:
       - run: 
           name: "Set up environment"
           command: |
-            echo >> $BASH_ENV \<<__EOF__
+            cat >> $BASH_ENV \<<__EOF__
             export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
             export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"
             if [ ! -n "$CIRCLE_TAG"]; then
