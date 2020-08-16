@@ -7,7 +7,7 @@ jobs:
 
     resource_class: small
 
-    working_directory: /go/src/github.com/<<ORG_NAME>>/<<REPO_NAME>>
+    working_directory: /go/src/github.com/tsarna/zone-update
 
     steps:
       - checkout
