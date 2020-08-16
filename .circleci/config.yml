@@ -18,7 +18,7 @@ jobs:
             cat >> $BASH_ENV \<<__EOF__
             export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
             export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=$GIT_COMMIT"
-            if [ ! -n "$CIRCLE_TAG"]; then
+            if [ ! -n "$CIRCLE_TAG" ]; then
               export VER=$CIRCLE_TAG
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
               export VER=latest
