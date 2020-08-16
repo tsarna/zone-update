@@ -17,7 +17,16 @@ jobs:
           command: |
             echo 'export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`' >> $BASH_ENV
             echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
-            mkdir -p artifacts pkg/linux_amd64 pkg/linux_arm64
+            echo >> $BASH_ENV \<<__EOF__
+            if [ ! -n "$CIRCLE_TAG"]; then
+              export VER=$CIRCLE_TAG
+            elif [ "$CIRCLE_BRANCH" = "develop" ]; then
+              export VER=latest
+            else
+              export VER=$CIRCLE_BRANCH
+            fi
+            __EOF__
+            mkdir -p artifacts pkg bin/linux_amd64 bin/linux_arm64
 
       - run:
           name: Build (AMD64)
@@ -26,7 +35,7 @@ jobs:
             GOOS: linux
             GOARCH: amd64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o pkg/linux_amd64/zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_amd64/zone-update
 
       - run:
           name: Build (ARM64)
@@ -35,7 +44,7 @@ jobs:
             GOOS: linux
             GOARCH: arm64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o pkg/linux_arm64/zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_arm64/zone-update
 
       - run:
           name: Run Tests
@@ -43,14 +52,15 @@ jobs:
             go test -coverprofile=cover.out -v ./...
             go tool cover -func cover.out -o artifacts/coverage.txt
             go tool cover -html=cover.out -o artifacts/coverage.html
-            ./pkg/linux_amd64/zone-update version >artifacts/version.txt
+            ./bin/linux_amd64/zone-update version >artifacts/version.txt
 
       - run:
           name: Package Binaries
           command: |
             for arch in linux_amd64 linux_arm64; do
-              zip -j pkg/$arch.zip pkg/$arch/*
+              zip -j pkg/zone-update_$VER_$arch.zip bin/$arch/*
             done
+            sha256sum pkg/* >pkg/zone-update_$VER_SHA256SUMS
 
       - store_artifacts:
           path: artifacts
