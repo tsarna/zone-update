@@ -15,9 +15,9 @@ jobs:
       - run: 
           name: "Set up environment"
           command: |
-            echo 'export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`' >> $BASH_ENV
-            echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"' >> $BASH_ENV
             echo >> $BASH_ENV \<<__EOF__
+            export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
+            export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$GIT_COMMIT"
             if [ ! -n "$CIRCLE_TAG"]; then
               export VER=$CIRCLE_TAG
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
@@ -60,7 +60,9 @@ jobs:
             for arch in linux_amd64 linux_arm64; do
               zip -j pkg/zone-update_$VER_$arch.zip bin/$arch/*
             done
-            sha256sum pkg/* >pkg/zone-update_$VER_SHA256SUMS
+            cd pkg; sha256sum *.zip >pkg/zone-update_$VER_SHA256SUMS
+            env >ENV.txt
+            cat $BASH_ENV >bashenv.txt
 
       - store_artifacts:
           path: artifacts
