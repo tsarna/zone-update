@@ -88,6 +88,9 @@ workflows:
   main:
     jobs:
       - build
+          filters:
+            tags:
+              only: /.*/
       - publish-github-release:
           requires:
             - build
