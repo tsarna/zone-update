@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 jobs:
   build:
     docker:
@@ -7,7 +7,7 @@ jobs:
 
     resource_class: small
 
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /go/src/github.com/<<ORG_NAME>>/<<REPO_NAME>>
 
     steps:
       - checkout
@@ -16,8 +16,8 @@ jobs:
           name: "Set up environment"
           command: |
             cat >> $BASH_ENV \<<__EOF__
-            export GIT_COMMIT=`echo $CIRCLE_SHA1 | cut -c 1-8`
-            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=\$GIT_COMMIT"
+            export GIT_COMMIT_SHORT=`echo $CIRCLE_SHA1 | cut -c 1-8`
+            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=\$GIT_COMMIT_SHORT"
             if [ -n "$CIRCLE_TAG" ]; then
               export VER=$CIRCLE_TAG
             elif [ "$CIRCLE_BRANCH" = "develop" ]; then
@@ -74,6 +74,9 @@ jobs:
   publish-github-release:
     docker:
       - image: circleci/golang:1.14
+
+    resource_class: small
+
     steps:
       - attach_workspace:
           at: ./workspace
