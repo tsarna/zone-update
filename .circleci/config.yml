@@ -52,7 +52,7 @@ jobs:
             go test -coverprofile=cover.out -v ./...
             go tool cover -func cover.out -o artifacts/coverage.txt
             go tool cover -html=cover.out -o artifacts/coverage.html
-            ./bin/linux_amd64/${CIRCLE_PROJECT_REPONAME} version >artifacts/version.txt
+            ./workspace/linux_amd64/${CIRCLE_PROJECT_REPONAME} version >artifacts/version.txt
 
       - store_artifacts:
           path: artifacts
