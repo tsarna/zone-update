@@ -1,6 +1,14 @@
-# zone-update
+# Zone-Update 
+[![CircleCI Status](https://circleci.com/gh/tsarna/zone-update.svg?style=shield)](https://circleci.com/gh/tsarna/zone-update)
+[![Issues](https://img.shields.io/github/issues/tsarna/zone-update)](https://github.com/tsarna/zone-update/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/tsarna/zone-update)](https://github.com/tsarna/zone-update/pulls)
+[![License](https://img.shields.io/github/license/tsarna/zone-update)](https://github.com/tsarna/zone-update/blob/master/LICENSE.md)
+[![Written in Go](https://img.shields.io/badge/Language-Go-blue)](https://golang.org/)
+[![Latest Version](https://img.shields.io/github/v/release/tsarna/zone-update?sort=semver)](https://github.com/tsarna/zone-update/releases)
 
 NOTE: zone-update is new software, in early release, and has not been thoroughly tested. Use at your own risk.
+
+## Overview
 
 **zone-update** updates a DNS Zone file when requested via an HTTP API.
 The API is designed to be compatible with the [HTTP Request](https://go-acme.github.io/lego/dns/httpreq/) DNS Provider API from [Lego](https://go-acme.github.io/lego/).

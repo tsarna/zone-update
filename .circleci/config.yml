@@ -5,33 +5,100 @@ jobs:
       # specify the version
       - image: circleci/golang:1.14
 
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    resource_class: small
+
+    working_directory: /go/src/github.com/tsarna/zone-update
 
     steps:
       - checkout
 
       - run: 
-          name: "Setup custom environment variables"
+          name: "Set up environment"
           command: |
-            echo 'export GO_LDFLAGS="-X github.com/tsarna/zone-update/version.GitCommit=$CIRCLE_SHA1"' >> $BASH_ENV
+            cat >> $BASH_ENV \<<__EOF__
+            export GIT_COMMIT_SHORT=`echo $CIRCLE_SHA1 | cut -c 1-8`
+            export GO_LDFLAGS="-X github.com/tsarna/${CIRCLE_PROJECT_REPONAME}/version.GitCommit=\$GIT_COMMIT_SHORT"
+            if [ -n "$CIRCLE_TAG" ]; then
+              export VER="$CIRCLE_TAG"
+            elif [ "$CIRCLE_BRANCH" = "develop" ]; then
+              export VER="latest"
+            else
+              export VER="$CIRCLE_BRANCH"
+            fi
+            __EOF__
+            mkdir -p artifacts workspace bin/linux_amd64 bin/linux_arm64
 
       - run:
-          name: Build
+          name: Build (AMD64)
+          environment:
+            CGO_ENABLED: 0
+            GOOS: linux
+            GOARCH: amd64
           command: |
-            go build -trimpath -ldflags $(GO_LDFLAGS) -o zone-update
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_amd64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
-          name: "Create a temp directory for artifacts"
+          name: Build (ARM64)
+          environment:
+            CGO_ENABLED: 0
+            GOOS: linux
+            GOARCH: arm64
           command: |
-            mkdir -p /tmp/artifacts
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_arm64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
           name: Run Tests
           command: |
             go test -coverprofile=cover.out -v ./...
-            go tool cover -func cover.out -o coverage.txt
-            go tool cover -html=cover.out -o coverage.html
-            mv coverage.txt coverage.html /tmp/artifacts
+            go tool cover -func cover.out -o artifacts/coverage.txt
+            go tool cover -html=cover.out -o artifacts/coverage.html
+            ./bin/linux_amd64/${CIRCLE_PROJECT_REPONAME} version >artifacts/version.txt
+
+      - run:
+          name: Package Binaries
+          command: |
+            env >artifacts/ENV.txt
+            cat $BASH_ENV >artifacts/bashenv.txt
+            for arch in linux_amd64 linux_arm64; do
+              zip -j workspace/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip bin/$arch/*
+            done
+            cd workspace; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
 
       - store_artifacts:
-          path: /tmp/artifacts
+          path: artifacts
+
+      - persist_to_workspace:
+          root: workspace
+          paths: "*"
+
+  publish-github-release:
+    docker:
+      - image: circleci/golang:1.14
+
+    resource_class: small
+
+    steps:
+      - attach_workspace:
+          at: ./workspace
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./workspace/
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - publish-github-release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
