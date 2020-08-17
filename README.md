@@ -1,5 +1,6 @@
 # Zone-Update 
-[![CircleCI Status](https://circleci.com/gh/tsarna/zone-update.svg?style=shield)](https://circleci.com/gh/tsarna/zone-update)
+
+[![CircleCI Status](https://circleci.com/gh/tsarna/zone-update/tree/develop.svg?style=shield)](https://circleci.com/gh/tsarna/zone-update)
 [![Issues](https://img.shields.io/github/issues/tsarna/zone-update)](https://github.com/tsarna/zone-update/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/tsarna/zone-update)](https://github.com/tsarna/zone-update/pulls)
 [![License](https://img.shields.io/github/license/tsarna/zone-update)](https://github.com/tsarna/zone-update/blob/master/LICENSE.md)
