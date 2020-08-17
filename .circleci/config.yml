@@ -26,7 +26,7 @@ jobs:
               export VER="$CIRCLE_BRANCH"
             fi
             __EOF__
-            mkdir -p artifacts workspace bin/linux_amd64 bin/linux_arm64
+            mkdir -p artifacts workspace/linux_amd64 workspace/linux_arm64
 
       - run:
           name: Build (AMD64)
@@ -35,7 +35,7 @@ jobs:
             GOOS: linux
             GOARCH: amd64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_amd64/${CIRCLE_PROJECT_REPONAME}
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o workspace/linux_amd64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
           name: Build (ARM64)
@@ -44,7 +44,7 @@ jobs:
             GOOS: linux
             GOARCH: arm64
           command: |
-            go build -trimpath -ldflags "$GO_LDFLAGS" -o bin/linux_arm64/${CIRCLE_PROJECT_REPONAME}
+            go build -trimpath -ldflags "$GO_LDFLAGS" -o workspace/linux_arm64/${CIRCLE_PROJECT_REPONAME}
 
       - run:
           name: Run Tests
@@ -53,16 +53,6 @@ jobs:
             go tool cover -func cover.out -o artifacts/coverage.txt
             go tool cover -html=cover.out -o artifacts/coverage.html
             ./bin/linux_amd64/${CIRCLE_PROJECT_REPONAME} version >artifacts/version.txt
-
-      - run:
-          name: Package Binaries
-          command: |
-            env >artifacts/ENV.txt
-            cat $BASH_ENV >artifacts/bashenv.txt
-            for arch in linux_amd64 linux_arm64; do
-              zip -j workspace/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip bin/$arch/*
-            done
-            cd workspace; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
 
       - store_artifacts:
           path: artifacts
@@ -80,11 +70,21 @@ jobs:
     steps:
       - attach_workspace:
           at: ./workspace
+
+      - run:
+          name: Package Binaries
+          command: |
+            mkdir pkg
+            for arch in linux_amd64 linux_arm64; do
+              zip -j pkg/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip workspace/$arch/*
+            done
+            cd pkg; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
+
       - run:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./workspace/
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./pkg/
 
 workflows:
   version: 2
