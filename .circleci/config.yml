@@ -76,9 +76,9 @@ jobs:
           command: |
             mkdir pkg
             for arch in linux_amd64 linux_arm64; do
-              zip -j pkg/${CIRCLE_PROJECT_REPONAME}_${VER}_${arch}.zip workspace/$arch/*
+              zip -j pkg/${CIRCLE_PROJECT_REPONAME}_${CIRCLE_TAG}_${arch}.zip workspace/$arch/*
             done
-            cd pkg; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${VER}_SHA256SUMS
+            cd pkg; sha256sum *.zip >${CIRCLE_PROJECT_REPONAME}_${CIRCLE_TAG}_SHA256SUMS
 
       - run:
           name: "Publish Release on GitHub"
